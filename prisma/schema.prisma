@@ -16,6 +16,8 @@ model Competitor {
   id        Int      @id @default(autoincrement())
   name      String
   surname   String
+  category  String?
+
   starts    Start[]
 }
 
