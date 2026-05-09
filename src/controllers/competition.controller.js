@@ -1,46 +1,56 @@
-const { json } = require("express");
+const prisma = require('../prisma/client');
 
-let competitions = [];
-
-exports.getAllCompetitions = (reg,res) => {
+exports.getAllCompetitions = async (reg,res) => {
+    const competitions = await prisma.competition.findMany();
     res.json(competitions)
 }
 
-exports.createCompetition =(req, res) => {
+exports.createCompetition = async (req, res) => {
     const {name, date} = req.body;
 
-    const newCompetition = {
-        id: Date.now(),
-        name,
-        date,
-    };
-
-    competitions.push(newCompetition);
+    const newCompetition = await prisma.competition.create({
+        data: {
+            name,
+            date: new Date(date)
+        }
+    });
 
     res.status(201).json(newCompetition)
 };
 
-exports.getCompetitionById = (req, res) => {
-    const id = parseInt(req.params.id);
+exports.getCompetitionById = async (req, res) => {
+    const id = Number(req.params.id);
 
-    const competition = competitions.find(c => c.id === id);
+    const competition = await prisma.competition.findUnique({
+        where: { id }
+    });
 
     if(!competition){
-        return res.status(404).json({message: "Nie znaleziono zawodów"});
+        return res.status(404).json({
+            message: "Nie znaleziono zawodów"
+        });
     }
 
     res.json(competition)
 };
 
-exports.deleteCompetition = (req,res) => {
-    const id = parseInt(req.params.id);
+exports.deleteCompetition = async (req,res) => {
+    const id = Number(req.params.id);
 
-    const index = competitions.findIndex(c => c.id === id)
+    const competition = await prisma.competition.findUnique({
+        where: { id }
+    });
 
-    if (index === -1) {
-        return res.status(404).json({message:"Nie znaleziono zawodów"});
+    if (!competition) {
+        return res.status(404).json({
+            message:"Nie znaleziono zawodów"
+        });
     }
-    const deleted = competitions.splice(index, 1);
+    await prisma.competition.delete({
+        where: { id }
+    })
 
-    res.json({ message: 'Usunięto zawody', deleted});
+    res.json({ 
+        message: 'Usunięto zawody'
+    });
 };

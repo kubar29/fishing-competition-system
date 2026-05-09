@@ -12,6 +12,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Competition {
+  id        Int      @id @default(autoincrement())
+  name      String
+  date      DateTime
+}
+
 model Competitor {
   id        Int      @id @default(autoincrement())
   name      String
