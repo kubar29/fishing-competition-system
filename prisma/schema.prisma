@@ -13,40 +13,82 @@ generator client {
 }
 
 model Competition {
-  id        Int      @id @default(autoincrement())
+  id        Int @id @default(autoincrement())
   name      String
   date      DateTime
+
+  teams     Team[]
+  rounds    Round[]
+}
+
+model Team {
+  id             Int @id @default(autoincrement())
+  name           String
+
+  competitionId  Int
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  members        TeamMember[]
 }
 
 model Competitor {
-  id        Int      @id @default(autoincrement())
+  id        Int @id @default(autoincrement())
   name      String
   surname   String
   category  String?
 
-  teamId    Int?
-  team      Team?    @relation(fields: [teamId], references: [id])
+  teams     TeamMember[]
+  starts    Start[]
+}
+
+model TeamMember {
+  id            Int @id @default(autoincrement())
+
+  competitorId  Int
+  teamId        Int
+
+  competitor Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, competitorId])
+}
+
+model Round {
+  id            Int @id @default(autoincrement())
+  number        Int
+
+  competitionId Int
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  sectors       Sector[]
+  starts        Start[]
+}
+
+model Sector {
+  id        Int @id @default(autoincrement())
+  name      String // A, B, C, D...
+
+  roundId   Int
+  round Round @relation(fields: [roundId], references: [id], onDelete: Cascade)
 
   starts    Start[]
 }
 
-model Team {
-  id          Int          @id @default(autoincrement())
-  name        String
-
-  competitors Competitor[]
-}
-
 model Start {
-  id             Int       @id @default(autoincrement())
-  competitorId   Int
-  roundId        Int
-  sector         String
-  subSector      String?
-  position       Int?
-  weight         Int
-  penaltyPoints  Int      @default(0)
-  sectorPoints   Float?
+  id            Int @id @default(autoincrement())
 
-  competitor Competitor @relation(fields: [competitorId], references: [id])
+  competitorId  Int
+  roundId       Int
+  sectorId      Int
+
+  subSector     String?   // np. A1, A2 (logika, nie struktura DB)
+
+  weight        Int
+  position      Int?
+  penaltyPoints Int @default(0)
+  sectorPoints  Float?
+
+  competitor Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  round Round @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  sector Sector @relation(fields: [sectorId], references: [id], onDelete: Cascade)
 }
