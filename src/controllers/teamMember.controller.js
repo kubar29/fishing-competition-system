@@ -1,6 +1,5 @@
 const prisma = require('../prisma/client');
 
-// GET TEAM MEMBERS
 exports.getTeamMembers = async (req, res) => {
     try {
         const teamId = Number(req.params.teamId);
@@ -35,7 +34,6 @@ exports.getTeamMembers = async (req, res) => {
     }
 };
 
-// ADD MEMBER
 exports.addMember = async (req, res) => {
     try {
         const teamId = Number(req.params.teamId);
@@ -102,7 +100,6 @@ exports.addMember = async (req, res) => {
     }
 };
 
-// REMOVE MEMBER
 exports.removeMember = async (req, res) => {
     try {
         const teamId = Number(req.params.teamId);

@@ -1,6 +1,5 @@
 const prisma = require('../prisma/client');
 
-// GET ALL
 exports.getAllTeams = async (req, res) => {
     try {
         const teams = await prisma.team.findMany({
@@ -25,7 +24,6 @@ exports.getAllTeams = async (req, res) => {
     }
 };
 
-// GET BY ID
 exports.getTeamsById = async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -60,7 +58,6 @@ exports.getTeamsById = async (req, res) => {
     }
 };
 
-// CREATE
 exports.createTeams = async (req, res) => {
     try {
         const { name, competitionId } = req.body;
@@ -89,7 +86,6 @@ exports.createTeams = async (req, res) => {
     }
 };
 
-// UPDATE
 exports.updateTeam = async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -129,7 +125,6 @@ exports.updateTeam = async (req, res) => {
     }
 };
 
-// DELETE
 exports.deleteTeam = async (req, res) => {
     try {
         const id = Number(req.params.id);

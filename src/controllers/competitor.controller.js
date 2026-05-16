@@ -21,7 +21,7 @@ exports.createCompetitor = async (req, res) => {
             data: {
                 name,
                 surname,
-                category: category || null
+                ...(category !== undefined && { category })
             }
         });
 
@@ -131,3 +131,4 @@ exports.deleteCompetitor = async (req, res) => {
         });
     }
 };
+
