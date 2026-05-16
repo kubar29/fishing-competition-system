@@ -13,82 +13,105 @@ generator client {
 }
 
 model Competition {
-  id        Int @id @default(autoincrement())
-  name      String
-  date      DateTime
+  id   Int      @id @default(autoincrement())
+  name String
+  date DateTime
 
-  teams     Team[]
-  rounds    Round[]
+  teams  Team[]
+  rounds Round[]
 }
 
 model Team {
-  id             Int @id @default(autoincrement())
-  name           String
+  id   Int    @id @default(autoincrement())
+  name String
 
-  competitionId  Int
-  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  competitionId Int
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
 
-  members        TeamMember[]
+  members TeamMember[]
 }
 
 model Competitor {
-  id        Int @id @default(autoincrement())
-  name      String
-  surname   String
-  category  String?
+  id       Int                @id @default(autoincrement())
+  name     String
+  surname  String
+  category CompetitorCategory @default(SENIOR)
 
-  teams     TeamMember[]
-  starts    Start[]
+  teams  TeamMember[]
+  starts Start[]
 }
 
 model TeamMember {
-  id            Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  competitorId  Int
-  teamId        Int
+  competitorId Int
+  teamId       Int
 
   competitor Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  team       Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([teamId, competitorId])
 }
 
 model Round {
-  id            Int @id @default(autoincrement())
-  number        Int
+  id     Int    @id @default(autoincrement())
+  name   String
+  number Int
 
   competitionId Int
-  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
 
-  sectors       Sector[]
-  starts        Start[]
+  sectors Sector[]
+  starts  Start[]
+
+  createdAt DateTime @default(now())
 }
 
 model Sector {
-  id        Int @id @default(autoincrement())
-  name      String // A, B, C, D...
+  id   Int    @id @default(autoincrement())
+  name String
 
-  roundId   Int
-  round Round @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  roundId Int
+  round   Round @relation(fields: [roundId], references: [id], onDelete: Cascade)
 
-  starts    Start[]
+  starts Start[]
+
+  createdAt DateTime @default(now())
 }
 
 model Start {
-  id            Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  competitorId  Int
-  roundId       Int
-  sectorId      Int
-
-  subSector     String?   // np. A1, A2 (logika, nie struktura DB)
-
-  weight        Int
-  position      Int?
-  penaltyPoints Int @default(0)
-  sectorPoints  Float?
+  competitorId Int
+  roundId      Int
+  sectorId     Int
 
   competitor Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
-  round Round @relation(fields: [roundId], references: [id], onDelete: Cascade)
-  sector Sector @relation(fields: [sectorId], references: [id], onDelete: Cascade)
+  round      Round      @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  sector     Sector     @relation(fields: [sectorId], references: [id], onDelete: Cascade)
+
+  position Int?
+  weight   Int  @default(0)
+
+  penaltyPoints Int    @default(0)
+  sectorPoints  Float?
+
+  subSector String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([competitorId, roundId])
+}
+
+enum CompetitorCategory {
+  SENIOR
+  WOMAN
+  U25
+}
+
+enum StartStatus {
+  ACTIVE
+  DNS // nie wystartował
+  DNF // mie ukończył ???czy na pewno potrzebny???
+  DSQ // dyskwalifikacja
 }
