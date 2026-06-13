@@ -7,6 +7,7 @@ const teamRoutes = require('./routes/team.routes');
 const roundRoutes = require("./routes/round.routes");
 const sectorRoutes = require("./routes/sector.routes");
 const startRoutes = require("./routes/start.routes");
+const resultRoutes = require('./routes/result.routes');
 
 
 require('dotenv').config();
@@ -22,6 +23,7 @@ app.use('/api/teams', teamRoutes);
 app.use("/api/rounds", roundRoutes);
 app.use("/api/sectors", sectorRoutes);
 app.use("/api/starts", startRoutes);
+app.use('/api/results', resultRoutes);
 
 app.use('/api/test', testRoutes)
 

@@ -93,10 +93,14 @@ model Start {
   position Int?
   weight   Int  @default(0)
 
+  status StartStatus @default(ACTIVE)
+
   penaltyPoints Int    @default(0)
   sectorPoints  Float?
 
   subSector String?
+
+  result Result?
 
   createdAt DateTime @default(now())
 
@@ -114,4 +118,28 @@ enum StartStatus {
   DNS // nie wystartował
   DNF // mie ukończył ???czy na pewno potrzebny???
   DSQ // dyskwalifikacja
+}
+
+enum ResultStatus {
+  PENDING
+  CONFIRMED
+  DISQUALIFIED
+}
+
+model Result {
+  id Int @id @default(autoincrement())
+
+  startId Int   @unique
+  start   Start @relation(fields: [startId], references: [id], onDelete: Cascade)
+
+  placeInSector Int?
+  sectorPoints  Float?
+  finalPoints   Float?
+
+  status ResultStatus @default(PENDING)
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
