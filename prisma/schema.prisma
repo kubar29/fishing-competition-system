@@ -107,6 +107,42 @@ model Start {
   @@unique([competitorId, roundId])
 }
 
+model Result {
+  id Int @id @default(autoincrement())
+
+  startId Int   @unique
+  start   Start @relation(fields: [startId], references: [id], onDelete: Cascade)
+
+  placeInSector Int?
+  sectorPoints  Float?
+  finalPoints   Float?
+
+  status ResultStatus @default(PENDING)
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String
+  email    String   @unique
+  password String
+  role     UserRole @default(USER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  ORGANIZER
+  JUDGE
+  USER
+}
+
 enum CompetitorCategory {
   SENIOR
   WOMAN
@@ -124,22 +160,4 @@ enum ResultStatus {
   PENDING
   CONFIRMED
   DISQUALIFIED
-}
-
-model Result {
-  id Int @id @default(autoincrement())
-
-  startId Int   @unique
-  start   Start @relation(fields: [startId], references: [id], onDelete: Cascade)
-
-  placeInSector Int?
-  sectorPoints  Float?
-  finalPoints   Float?
-
-  status ResultStatus @default(PENDING)
-
-  notes String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
