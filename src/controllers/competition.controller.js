@@ -1,8 +1,16 @@
-const prisma = require('../prisma/client');
+const competitionService = require('../services/competition.service');
+
+const {
+    validateCreateCompetitionDto,
+    validateUpdateCompetitionDto,
+    mapCreateCompetitionDto,
+    mapUpdateCompetitionDto
+} = require('../dto/competition.dto');
 
 exports.getAllCompetitions = async (req, res) => {
     try {
-        const competitions = await prisma.competition.findMany();
+        const competitions = await competitionService.getAllCompetitions();
+
         res.json(competitions);
     } catch (error) {
         console.error(error);
@@ -11,26 +19,31 @@ exports.getAllCompetitions = async (req, res) => {
             message: 'Błąd pobierania zawodów'
         });
     }
-}
+};
 
 exports.createCompetition = async (req, res) => {
     try {
-        const {name, date} = req.body;
+        const errors = validateCreateCompetitionDto(req.body);
 
-        const newCompetition = await prisma.competition.create({
-            data: {
-                name,
-                date: new Date(date)
-            }
-        });
+        if (errors.length > 0) {
+            return res.status(400).json({
+                message: 'Błędne dane wejściowe',
+                errors
+            });
+        }
 
-        res.status(201).json(newCompetition)
+        const data = mapCreateCompetitionDto(req.body);
 
+        const newCompetition = await competitionService.createCompetition(data);
+
+        res.status(201).json(newCompetition);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd tworzenia zawodów'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd tworzenia zawodów'
         });
     }
 };
@@ -39,91 +52,63 @@ exports.getCompetitionById = async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const competition = await prisma.competition.findUnique({
-            where: { id }
-        });
+        const competition = await competitionService.getCompetitionById(id);
 
-        if(!competition){
-            return res.status(404).json({
-                message: "Nie znaleziono zawodów"
-            });
-        }
-
-        res.json(competition)
+        res.json(competition);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd pobierania zawodów'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd pobierania zawodów'
         });
     }
-    
 };
 
 exports.updateCompetition = async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const {
-            name,
-            date
-        } = req.body;
+        const errors = validateUpdateCompetitionDto(req.body);
 
-        const existingCompetition = await prisma.competition.findUnique({
-            where: { id }
-        });
-
-        if (!existingCompetition) {
-            return res.status(404).json({
-                message: 'Nie znaleziono zawodów'
+        if (errors.length > 0) {
+            return res.status(400).json({
+                message: 'Błędne dane wejściowe',
+                errors
             });
         }
 
-        const updatedCompetition = await prisma.competition.update({
-            where: { id },
-            data: {
-                ...(name !== undefined && { name }),
-                ...(date !== undefined && { date: new Date(date) })
-            }
-        });
+        const data = mapUpdateCompetitionDto(req.body);
+
+        const updatedCompetition = await competitionService.updateCompetition(id, data);
 
         res.json(updatedCompetition);
-
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd aktualizacji zawodów'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd aktualizacji zawodów'
         });
     }
 };
 
-exports.deleteCompetition = async (req,res) => {
+exports.deleteCompetition = async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const competition = await prisma.competition.findUnique({
-            where: { id }
-        });
+        const result = await competitionService.deleteCompetition(id);
 
-        if (!competition) {
-            return res.status(404).json({
-                message:"Nie znaleziono zawodów"
-            });
-        }
-        await prisma.competition.delete({
-            where: { id }
-        })
-
-        res.json({ 
-            message: 'Usunięto zawody'
-        });
+        res.json(result);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd usuwania zawodów'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd usuwania zawodów'
         });
     }
-    
 };
