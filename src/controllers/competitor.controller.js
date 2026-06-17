@@ -1,11 +1,19 @@
-const prisma = require('../prisma/client');
+const competitorService = require('../services/competitor.service');
+
+const {
+    validateCreateCompetitorDto,
+    validateUpdateCompetitorDto,
+    mapCreateCompetitorDto,
+    mapUpdateCompetitorDto
+} = require('../dto/competitor.dto');
 
 exports.getAllCompetitors = async (req, res) => {
-    try{
-        const competitors = await prisma.competitor.findMany();
+    try {
+        const competitors = await competitorService.getAllCompetitors();
+
         res.json(competitors);
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             message: 'Błąd pobierania zawodników'
@@ -14,89 +22,78 @@ exports.getAllCompetitors = async (req, res) => {
 };
 
 exports.createCompetitor = async (req, res) => {
-    try{
-        const { name, surname, category } = req.body;
+    try {
+        const errors = validateCreateCompetitorDto(req.body);
 
-        const newCompetitor = await prisma.competitor.create({
-            data: {
-                name,
-                surname,
-                ...(category !== undefined && { category })
-            }
-        });
+        if (errors.length > 0) {
+            return res.status(400).json({
+                message: 'Błędne dane wejściowe',
+                errors
+            });
+        }
+
+        const data = mapCreateCompetitorDto(req.body);
+
+        const newCompetitor = await competitorService.createCompetitor(data);
 
         res.status(201).json(newCompetitor);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd tworzenia zawodnika'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd tworzenia zawodnika'
         });
     }
 };
 
 exports.getCompetitorById = async (req, res) => {
-    try{
+    try {
         const id = Number(req.params.id);
 
-        const competitor = await prisma.competitor.findUnique({
-            where: { id }
-        });
-
-        if (!competitor) {
-            return res.status(404).json({ 
-                message: 'Nie znaleziono zawodnika'
-            });
-        }
+        const competitor = await competitorService.getCompetitorById(id);
 
         res.json(competitor);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd pobierania zawodnika'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd pobierania zawodnika'
         });
     }
-    
 };
 
 exports.updateCompetitor = async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const {
-            name,
-            surname,
-            category
-        } = req.body;
+        const errors = validateUpdateCompetitorDto(req.body);
 
-        const existingCompetitor = await prisma.competitor.findUnique({
-            where: { id }
-        });
-
-        if (!existingCompetitor) {
-            return res.status(404).json({
-                message: 'Nie znaleziono zawodnika'
+        if (errors.length > 0) {
+            return res.status(400).json({
+                message: 'Błędne dane wejściowe',
+                errors
             });
         }
 
-        const updatedCompetitor = await prisma.competitor.update({
-            where: { id },
+        const data = mapUpdateCompetitorDto(req.body);
 
-            data: {
-                ...(name !== undefined && { name }),
-                ...(surname !== undefined && { surname }),
-                ...(category !== undefined && { category })
-            }
-        });
+        const updatedCompetitor = await competitorService.updateCompetitor(
+            id,
+            data
+        );
 
         res.json(updatedCompetitor);
-
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd aktualizacji zawodnika'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd aktualizacji zawodnika'
         });
     }
 };
@@ -105,30 +102,16 @@ exports.deleteCompetitor = async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const competitor = await prisma.competitor.findUnique({
-            where: { id }
-        });
+        const result = await competitorService.deleteCompetitor(id);
 
-        if (!competitor) {
-            return res.status(404).json({
-                message: 'Nie znaleziono zawodnika'
-            });
-        }
-
-        await prisma.competitor.delete({
-            where: { id }
-        });
-
-        res.json({
-            message: 'Usunięto zawodnika'
-        });
-
+        res.json(result);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd usuwania zawodnika'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd usuwania zawodnika'
         });
     }
 };
-
