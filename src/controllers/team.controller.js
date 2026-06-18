@@ -1,20 +1,17 @@
-const prisma = require('../prisma/client');
+const teamService = require('../services/team.service');
+
+const {
+    validateCreateTeamDto,
+    validateUpdateTeamDto,
+    mapCreateTeamDto,
+    mapUpdateTeamDto
+} = require('../dto/team.dto');
 
 exports.getAllTeams = async (req, res) => {
     try {
-        const teams = await prisma.team.findMany({
-            include: {
-                competition: true,
-                members: {
-                    include: {
-                        competitor: true
-                    }
-                }
-            }
-        });
+        const teams = await teamService.getAllTeams();
 
         res.json(teams);
-
     } catch (error) {
         console.error(error);
 
@@ -28,60 +25,43 @@ exports.getTeamsById = async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const team = await prisma.team.findUnique({
-            where: { id },
-
-            include: {
-                competition: true,
-                members: {
-                    include: {
-                        competitor: true
-                    }
-                }
-            }
-        });
-
-        if (!team) {
-            return res.status(404).json({
-                message: 'Nie znaleziono drużyny'
-            });
-        }
+        const team = await teamService.getTeamById(id);
 
         res.json(team);
-
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd pobierania drużyny'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd pobierania drużyny'
         });
     }
 };
 
 exports.createTeams = async (req, res) => {
     try {
-        const { name, competitionId } = req.body;
+        const errors = validateCreateTeamDto(req.body);
 
-        if (!name) {
+        if (errors.length > 0) {
             return res.status(400).json({
-                message: 'Brak nazwy drużyny'
+                message: 'Błędne dane wejściowe',
+                errors
             });
         }
 
-        const team = await prisma.team.create({
-            data: {
-                name,
-                competitionId
-            }
-        });
+        const data = mapCreateTeamDto(req.body);
+
+        const team = await teamService.createTeam(data);
 
         res.status(201).json(team);
-
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd tworzenia drużyny'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd tworzenia drużyny'
         });
     }
 };
@@ -90,37 +70,27 @@ exports.updateTeam = async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const {
-            name,
-            competitionId
-        } = req.body;
+        const errors = validateUpdateTeamDto(req.body);
 
-        const existingTeam = await prisma.team.findUnique({
-            where: { id }
-        });
-
-        if (!existingTeam) {
-            return res.status(404).json({
-                message: 'Nie znaleziono drużyny'
+        if (errors.length > 0) {
+            return res.status(400).json({
+                message: 'Błędne dane wejściowe',
+                errors
             });
         }
 
-        const updatedTeam = await prisma.team.update({
-            where: { id },
+        const data = mapUpdateTeamDto(req.body);
 
-            data: {
-                ...(name !== undefined && { name }),
-                ...(competitionId !== undefined && { competitionId })
-            }
-        });
+        const updatedTeam = await teamService.updateTeam(id, data);
 
         res.json(updatedTeam);
-
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd aktualizacji drużyny'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd aktualizacji drużyny'
         });
     }
 };
@@ -129,29 +99,16 @@ exports.deleteTeam = async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const team = await prisma.team.findUnique({
-            where: { id }
-        });
+        const result = await teamService.deleteTeam(id);
 
-        if (!team) {
-            return res.status(404).json({
-                message: 'Nie znaleziono drużyny'
-            });
-        }
-
-        await prisma.team.delete({
-            where: { id }
-        });
-
-        res.json({
-            message: 'Usunięto drużynę'
-        });
-
+        res.json(result);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd usuwania drużyny'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd usuwania drużyny'
         });
     }
 };
