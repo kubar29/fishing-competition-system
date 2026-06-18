@@ -1,6 +1,6 @@
 const allowedStatuses = ['PENDING', 'CONFIRMED', 'DISQUALIFIED'];
 
-exports.validateCreateResultDto = (body) => {
+exports.validateCreateResultDto = (body = {}) => {
     const errors = [];
 
     if (body.startId === undefined) {
@@ -33,7 +33,7 @@ exports.validateCreateResultDto = (body) => {
     return errors;
 };
 
-exports.validateUpdateResultDto = (body) => {
+exports.validateUpdateResultDto = (body = {}) => {
     const errors = [];
 
     if (body.placeInSector !== undefined && Number(body.placeInSector) < 1) {

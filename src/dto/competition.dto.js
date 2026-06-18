@@ -1,4 +1,4 @@
-exports.validateCreateCompetitionDto = (body) => {
+exports.validateCreateCompetitionDto = (body = {}) => {
     const errors = [];
 
     if (!body.name) {
@@ -16,7 +16,7 @@ exports.validateCreateCompetitionDto = (body) => {
     return errors;
 };
 
-exports.validateUpdateCompetitionDto = (body) => {
+exports.validateUpdateCompetitionDto = (body = {}) => {
     const errors = [];
 
     if (body.date !== undefined && isNaN(new Date(body.date).getTime())) {

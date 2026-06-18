@@ -1,6 +1,6 @@
 const allowedCategories = ['SENIOR', 'WOMAN', 'U25'];
 
-exports.validateCreateCompetitorDto = (body) => {
+exports.validateCreateCompetitorDto = (body = {}) => {
     const errors = [];
 
     if (!body.name) {
@@ -21,7 +21,7 @@ exports.validateCreateCompetitorDto = (body) => {
     return errors;
 };
 
-exports.validateUpdateCompetitorDto = (body) => {
+exports.validateUpdateCompetitorDto = (body = {}) => {
     const errors = [];
 
     if (

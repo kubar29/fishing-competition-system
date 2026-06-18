@@ -1,6 +1,6 @@
 const allowedRoles = ['ADMIN', 'ORGANIZER', 'JUDGE'];
 
-exports.validateRegisterDto = (body) => {
+exports.validateRegisterDto = (body = {}) => {
     const errors = [];
 
     if (!body.name) {
@@ -29,7 +29,7 @@ exports.validateRegisterDto = (body) => {
     return errors;
 };
 
-exports.validateLoginDto = (body) => {
+exports.validateLoginDto = (body = {}) => {
     const errors = [];
 
     if (!body.email) {

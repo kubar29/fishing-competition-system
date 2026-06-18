@@ -1,4 +1,4 @@
-exports.validateCreateTeamDto = (body) => {
+exports.validateCreateTeamDto = (body = {}) => {
     const errors = [];
 
     if (!body.name) {
@@ -19,7 +19,7 @@ exports.validateCreateTeamDto = (body) => {
     return errors;
 };
 
-exports.validateUpdateTeamDto = (body) => {
+exports.validateUpdateTeamDto = (body = {}) => {
     const errors = [];
 
     if (
