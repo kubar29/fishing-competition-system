@@ -1,8 +1,16 @@
-const prisma = require('../prisma/client');
+const sectorService = require('../services/sector.service');
+
+const {
+    validateIdParam,
+    validateCreateSectorDto,
+    validateUpdateSectorDto,
+    mapCreateSectorDto,
+    mapUpdateSectorDto
+} = require('../dto/sector.dto');
 
 exports.getAllSectors = async (req, res) => {
     try {
-        const sectors = await prisma.sector.findMany();
+        const sectors = await sectorService.getAllSectors();
 
         res.json(sectors);
     } catch (error) {
@@ -14,137 +22,80 @@ exports.getAllSectors = async (req, res) => {
     }
 };
 
-exports.createSector = async (req, res) => {
-    try {
-        const { name, roundId } = req.body;
-
-        const round = await prisma.round.findUnique({
-            where: { id: Number(roundId) }
-        });
-
-        if (!round) {
-            return res.status(404).json({
-                message: 'Nie znaleziono tury'
-            });
-        }
-
-        const newSector = await prisma.sector.create({
-            data: {
-                name,
-                roundId: Number(roundId)
-            }
-        });
-
-        res.status(201).json(newSector);
-    } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            message: 'Błąd tworzenia sektora'
-        });
-    }
-};
-
 exports.getSectorById = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
-        const sector = await prisma.sector.findUnique({
-            where: { id },
-            include: {
-                round: true,
-                starts: true
-            }
-        });
-
-        if (!sector) {
-            return res.status(404).json({
-                message: 'Nie znaleziono sektora'
-            });
-        }
+        const sector = await sectorService.getSectorById(id);
 
         res.json(sector);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd pobierania sektora'
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd pobierania sektora'
+        });
+    }
+};
+
+exports.createSector = async (req, res) => {
+    try {
+        const errors = validateCreateSectorDto(req.body);
+
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
+        }
+
+        const data = mapCreateSectorDto(req.body);
+
+        const newSector = await sectorService.createSector(data);
+
+        res.status(201).json(newSector);
+    } catch (error) {
+        console.error(error);
+
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd tworzenia sektora'
         });
     }
 };
 
 exports.updateSector = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
-        const { name, roundId } = req.body;
+        const errors = validateUpdateSectorDto(req.body);
 
-        const existingSector = await prisma.sector.findUnique({
-            where: { id }
-        });
-
-        if (!existingSector) {
-            return res.status(404).json({
-                message: 'Nie znaleziono sektora'
-            });
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
         }
 
-        if (roundId !== undefined) {
-            const round = await prisma.round.findUnique({
-                where: { id: Number(roundId) }
-            });
+        const data = mapUpdateSectorDto(req.body);
 
-            if (!round) {
-                return res.status(404).json({
-                    message: 'Nie znaleziono tury'
-                });
-            }
-        }
-
-        const updatedSector = await prisma.sector.update({
-            where: { id },
-            data: {
-                ...(name !== undefined && { name }),
-                ...(roundId !== undefined && { roundId: Number(roundId) })
-            }
-        });
+        const updatedSector = await sectorService.updateSector(id, data);
 
         res.json(updatedSector);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd aktualizacji sektora'
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd aktualizacji sektora'
         });
     }
 };
 
 exports.deleteSector = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
-        const sector = await prisma.sector.findUnique({
-            where: { id }
-        });
+        const result = await sectorService.deleteSector(id);
 
-        if (!sector) {
-            return res.status(404).json({
-                message: 'Nie znaleziono sektora'
-            });
-        }
-
-        await prisma.sector.delete({
-            where: { id }
-        });
-
-        res.json({
-            message: 'Usunięto sektor'
-        });
+        res.json(result);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd usuwania sektora'
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd usuwania sektora'
         });
     }
 };

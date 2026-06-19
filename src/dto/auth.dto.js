@@ -1,4 +1,4 @@
-const allowedRoles = ['ADMIN', 'ORGANIZER', 'JUDGE'];
+const allowedRoles = ['ADMIN', 'ORGANIZER', 'JUDGE', 'USER'];
 
 exports.validateRegisterDto = (body = {}) => {
     const errors = [];

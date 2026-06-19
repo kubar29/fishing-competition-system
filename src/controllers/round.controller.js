@@ -1,8 +1,15 @@
-const prisma = require('../prisma/client');
+const roundService = require('../services/round.service');
+const {
+    validateCreateRoundDto,
+    validateUpdateRoundDto,
+    validateIdParam,
+    mapCreateRoundDto,
+    mapUpdateRoundDto
+} = require('../dto/round.dto');
 
 exports.getAllRounds = async (req, res) => {
     try {
-        const rounds = await prisma.round.findMany();
+        const rounds = await roundService.getAllRounds();
 
         res.json(rounds);
     } catch (error) {
@@ -14,140 +21,80 @@ exports.getAllRounds = async (req, res) => {
     }
 };
 
-exports.createRound = async (req, res) => {
-    try {
-        const { name, number, competitionId } = req.body;
-
-        const competition = await prisma.competition.findUnique({
-            where: { id: Number(competitionId) }
-        });
-
-        if (!competition) {
-            return res.status(404).json({
-                message: 'Nie znaleziono zawodów'
-            });
-        }
-
-        const newRound = await prisma.round.create({
-            data: {
-                name,
-                number: Number(number),
-                competitionId: Number(competitionId)
-            }
-        });
-
-        res.status(201).json(newRound);
-    } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            message: 'Błąd tworzenia tury'
-        });
-    }
-};
-
 exports.getRoundById = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
-        const round = await prisma.round.findUnique({
-            where: { id },
-            include: {
-                competition: true,
-                sectors: true,
-                starts: true
-            }
-        });
-
-        if (!round) {
-            return res.status(404).json({
-                message: 'Nie znaleziono tury'
-            });
-        }
+        const round = await roundService.getRoundById(id);
 
         res.json(round);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd pobierania tury'
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd pobierania tury'
+        });
+    }
+};
+
+exports.createRound = async (req, res) => {
+    try {
+        const errors = validateCreateRoundDto(req.body);
+
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
+        }
+
+        const data = mapCreateRoundDto(req.body);
+
+        const newRound = await roundService.createRound(data);
+
+        res.status(201).json(newRound);
+    } catch (error) {
+        console.error(error);
+
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd tworzenia tury'
         });
     }
 };
 
 exports.updateRound = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
-        const { name, number, competitionId } = req.body;
+        const errors = validateUpdateRoundDto(req.body);
 
-        const existingRound = await prisma.round.findUnique({
-            where: { id }
-        });
-
-        if (!existingRound) {
-            return res.status(404).json({
-                message: 'Nie znaleziono tury'
-            });
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
         }
 
-        if (competitionId !== undefined) {
-            const competition = await prisma.competition.findUnique({
-                where: { id: Number(competitionId) }
-            });
+        const data = mapUpdateRoundDto(req.body);
 
-            if (!competition) {
-                return res.status(404).json({
-                    message: 'Nie znaleziono zawodów'
-                });
-            }
-        }
-
-        const updatedRound = await prisma.round.update({
-            where: { id },
-            data: {
-                ...(name !== undefined && { name }),
-                ...(number !== undefined && { number: Number(number) }),
-                ...(competitionId !== undefined && { competitionId: Number(competitionId) })
-            }
-        });
+        const updatedRound = await roundService.updateRound(id, data);
 
         res.json(updatedRound);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd aktualizacji tury'
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd aktualizacji tury'
         });
     }
 };
 
 exports.deleteRound = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
-        const round = await prisma.round.findUnique({
-            where: { id }
-        });
+        const result = await roundService.deleteRound(id);
 
-        if (!round) {
-            return res.status(404).json({
-                message: 'Nie znaleziono tury'
-            });
-        }
-
-        await prisma.round.delete({
-            where: { id }
-        });
-
-        res.json({
-            message: 'Usunięto turę'
-        });
+        res.json(result);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd usuwania tury'
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd usuwania tury'
         });
     }
 };

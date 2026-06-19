@@ -1,8 +1,16 @@
-const prisma = require('../prisma/client');
+const startService = require('../services/start.service');
+
+const {
+    validateIdParam,
+    validateCreateStartDto,
+    validateUpdateStartDto,
+    mapCreateStartDto,
+    mapUpdateStartDto
+} = require('../dto/start.dto');
 
 exports.getAllStarts = async (req, res) => {
     try {
-        const starts = await prisma.start.findMany();
+        const starts = await startService.getAllStarts();
 
         res.json(starts);
     } catch (error) {
@@ -14,67 +22,33 @@ exports.getAllStarts = async (req, res) => {
     }
 };
 
+exports.getStartById = async (req, res) => {
+    try {
+        const id = validateIdParam(req.params.id);
+
+        const start = await startService.getStartById(id);
+
+        res.json(start);
+    } catch (error) {
+        console.error(error);
+
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd pobierania startu'
+        });
+    }
+};
+
 exports.createStart = async (req, res) => {
     try {
-        const {
-            competitorId,
-            roundId,
-            sectorId,
-            position,
-            weight,
-            penaltyPoints,
-            sectorPoints,
-            subSector
-        } = req.body;
+        const errors = validateCreateStartDto(req.body);
 
-        const competitor = await prisma.competitor.findUnique({
-            where: { id: Number(competitorId) }
-        });
-
-        if (!competitor) {
-            return res.status(404).json({
-                message: 'Nie znaleziono zawodnika'
-            });
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
         }
 
-        const round = await prisma.round.findUnique({
-            where: { id: Number(roundId) }
-        });
+        const data = mapCreateStartDto(req.body);
 
-        if (!round) {
-            return res.status(404).json({
-                message: 'Nie znaleziono tury'
-            });
-        }
-
-        const sector = await prisma.sector.findUnique({
-            where: { id: Number(sectorId) }
-        });
-
-        if (!sector) {
-            return res.status(404).json({
-                message: 'Nie znaleziono sektora'
-            });
-        }
-
-        if (sector.roundId !== Number(roundId)) {
-            return res.status(400).json({
-                message: 'Sektor nie należy do wybranej tury'
-            });
-        }
-
-        const newStart = await prisma.start.create({
-            data: {
-                competitorId: Number(competitorId),
-                roundId: Number(roundId),
-                sectorId: Number(sectorId),
-                ...(position !== undefined && { position: Number(position) }),
-                ...(weight !== undefined && { weight: Number(weight) }),
-                ...(penaltyPoints !== undefined && { penaltyPoints: Number(penaltyPoints) }),
-                ...(sectorPoints !== undefined && { sectorPoints: Number(sectorPoints) }),
-                ...(subSector !== undefined && { subSector })
-            }
-        });
+        const newStart = await startService.createStart(data);
 
         res.status(201).json(newStart);
     } catch (error) {
@@ -86,130 +60,48 @@ exports.createStart = async (req, res) => {
             });
         }
 
-        res.status(500).json({
-            message: 'Błąd tworzenia startu'
-        });
-    }
-};
-
-exports.getStartById = async (req, res) => {
-    try {
-        const id = Number(req.params.id);
-
-        const start = await prisma.start.findUnique({
-            where: { id },
-            include: {
-                competitor: true,
-                round: true,
-                sector: true
-            }
-        });
-
-        if (!start) {
-            return res.status(404).json({
-                message: 'Nie znaleziono startu'
-            });
-        }
-
-        res.json(start);
-    } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            message: 'Błąd pobierania startu'
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd tworzenia startu'
         });
     }
 };
 
 exports.updateStart = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
-        const {
-            sectorId,
-            position,
-            weight,
-            penaltyPoints,
-            sectorPoints,
-            subSector
-        } = req.body;
+        const errors = validateUpdateStartDto(req.body);
 
-        const existingStart = await prisma.start.findUnique({
-            where: { id }
-        });
-
-        if (!existingStart) {
-            return res.status(404).json({
-                message: 'Nie znaleziono startu'
-            });
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
         }
 
-        if (sectorId !== undefined) {
-            const sector = await prisma.sector.findUnique({
-                where: { id: Number(sectorId) }
-            });
+        const data = mapUpdateStartDto(req.body);
 
-            if (!sector) {
-                return res.status(404).json({
-                    message: 'Nie znaleziono sektora'
-                });
-            }
-
-            if (sector.roundId !== existingStart.roundId) {
-                return res.status(400).json({
-                    message: 'Sektor nie należy do tury tego startu'
-                });
-            }
-        }
-
-        const updatedStart = await prisma.start.update({
-            where: { id },
-            data: {
-                ...(sectorId !== undefined && { sectorId: Number(sectorId) }),
-                ...(position !== undefined && { position: Number(position) }),
-                ...(weight !== undefined && { weight: Number(weight) }),
-                ...(penaltyPoints !== undefined && { penaltyPoints: Number(penaltyPoints) }),
-                ...(sectorPoints !== undefined && { sectorPoints: Number(sectorPoints) }),
-                ...(subSector !== undefined && { subSector })
-            }
-        });
+        const updatedStart = await startService.updateStart(id, data);
 
         res.json(updatedStart);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd aktualizacji startu'
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd aktualizacji startu'
         });
     }
 };
 
 exports.deleteStart = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
-        const start = await prisma.start.findUnique({
-            where: { id }
-        });
+        const result = await startService.deleteStart(id);
 
-        if (!start) {
-            return res.status(404).json({
-                message: 'Nie znaleziono startu'
-            });
-        }
-
-        await prisma.start.delete({
-            where: { id }
-        });
-
-        res.json({
-            message: 'Usunięto start'
-        });
+        res.json(result);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd usuwania startu'
+        res.status(error.statusCode || 500).json({
+            message: error.message || 'Błąd usuwania startu'
         });
     }
 };
