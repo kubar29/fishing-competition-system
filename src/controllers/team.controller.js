@@ -3,6 +3,7 @@ const teamService = require('../services/team.service');
 const {
     validateCreateTeamDto,
     validateUpdateTeamDto,
+    validateIdParam,
     mapCreateTeamDto,
     mapUpdateTeamDto
 } = require('../dto/team.dto');
@@ -23,7 +24,7 @@ exports.getAllTeams = async (req, res) => {
 
 exports.getTeamsById = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
         const team = await teamService.getTeamById(id);
 
@@ -68,7 +69,7 @@ exports.createTeams = async (req, res) => {
 
 exports.updateTeam = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
         const errors = validateUpdateTeamDto(req.body);
 
@@ -97,7 +98,7 @@ exports.updateTeam = async (req, res) => {
 
 exports.deleteTeam = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
         const result = await teamService.deleteTeam(id);
 

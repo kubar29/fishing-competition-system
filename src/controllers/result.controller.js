@@ -2,6 +2,7 @@ const resultService = require('../services/result.service');
 const resultCalculationService = require('../services/resultCalculation.service');
 
 const {
+    validateIdParam,
     validateCreateResultDto,
     validateUpdateResultDto,
     mapCreateResultDto,
@@ -24,22 +25,18 @@ exports.getAllResults = async (req, res) => {
 
 exports.getResultById = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
         const result = await resultService.getResultById(id);
-
-        if (!result) {
-            return res.status(404).json({
-                message: 'Nie znaleziono wyniku'
-            });
-        }
 
         res.json(result);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            message: 'Błąd pobierania wyniku'
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd pobierania wyniku'
         });
     }
 };
@@ -73,7 +70,7 @@ exports.createResult = async (req, res) => {
 
 exports.updateResult = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
         const errors = validateUpdateResultDto(req.body);
 
@@ -85,9 +82,6 @@ exports.updateResult = async (req, res) => {
         }
 
         const data = mapUpdateResultDto(req.body);
-
-        console.log('UPDATE RESULT BODY:', req.body);
-        console.log('UPDATE RESULT DATA:', data);
 
         const updatedResult = await resultService.updateResult(id, data);
 
@@ -105,7 +99,7 @@ exports.updateResult = async (req, res) => {
 
 exports.deleteResult = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
         const result = await resultService.deleteResult(id);
 
@@ -123,7 +117,7 @@ exports.deleteResult = async (req, res) => {
 
 exports.getResultsByRoundId = async (req, res) => {
     try {
-        const roundId = Number(req.params.id);
+        const roundId = validateIdParam(req.params.id);
 
         const results = await resultService.getResultsByRoundId(roundId);
 
@@ -141,8 +135,8 @@ exports.getResultsByRoundId = async (req, res) => {
 
 exports.calculateSectorResults = async (req, res) => {
     try {
-        const roundId = Number(req.params.roundId);
-        const sectorId = Number(req.params.sectorId);
+        const roundId = validateIdParam(req.params.roundId);
+        const sectorId = validateIdParam(req.params.sectorId);
 
         const results = await resultCalculationService.calculateSectorResults(
             roundId,
@@ -163,8 +157,8 @@ exports.calculateSectorResults = async (req, res) => {
 
 exports.generateSectorResults = async (req, res) => {
     try {
-        const roundId = Number(req.params.roundId);
-        const sectorId = Number(req.params.sectorId);
+        const roundId = validateIdParam(req.params.roundId);
+        const sectorId = validateIdParam(req.params.sectorId);
 
         const results = await resultCalculationService.generateSectorResults(
             roundId,

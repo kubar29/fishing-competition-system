@@ -1,3 +1,15 @@
+exports.validateIdParam = (id) => {
+    const parsedId = Number(id);
+
+    if (!Number.isInteger(parsedId) || parsedId <= 0) {
+        const error = new Error('Nieprawidłowe ID');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    return parsedId;
+};
+
 exports.validateCreateTeamDto = (body = {}) => {
     const errors = [];
 

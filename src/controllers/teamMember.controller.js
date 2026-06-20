@@ -2,12 +2,13 @@ const teamMemberService = require('../services/teamMember.service');
 
 const {
     validateAddMemberDto,
+    validateIdParam,
     mapAddMemberDto
 } = require('../dto/teamMember.dto');
 
 exports.getTeamMembers = async (req, res) => {
     try {
-        const teamId = Number(req.params.teamId);
+        const teamId = validateIdParam(req.params.teamId);
 
         const members = await teamMemberService.getTeamMembers(teamId);
 
@@ -25,7 +26,7 @@ exports.getTeamMembers = async (req, res) => {
 
 exports.addMember = async (req, res) => {
     try {
-        const teamId = Number(req.params.teamId);
+        const teamId = validateIdParam(req.params.teamId);
 
         const errors = validateAddMemberDto(req.body);
 
@@ -54,8 +55,8 @@ exports.addMember = async (req, res) => {
 
 exports.removeMember = async (req, res) => {
     try {
-        const teamId = Number(req.params.teamId);
-        const competitorId = Number(req.params.competitorId);
+        const teamId = validateIdParam(req.params.teamId);
+        const competitorId = validateIdParam(req.params.competitorId);
 
         const result = await teamMemberService.removeMember(
             teamId,

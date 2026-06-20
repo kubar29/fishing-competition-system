@@ -3,6 +3,7 @@ const competitorService = require('../services/competitor.service');
 const {
     validateCreateCompetitorDto,
     validateUpdateCompetitorDto,
+    validateIdParam,
     mapCreateCompetitorDto,
     mapUpdateCompetitorDto
 } = require('../dto/competitor.dto');
@@ -50,7 +51,7 @@ exports.createCompetitor = async (req, res) => {
 
 exports.getCompetitorById = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
         const competitor = await competitorService.getCompetitorById(id);
 
@@ -68,7 +69,7 @@ exports.getCompetitorById = async (req, res) => {
 
 exports.updateCompetitor = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+       const id = validateIdParam(req.params.id);
 
         const errors = validateUpdateCompetitorDto(req.body);
 
@@ -100,7 +101,7 @@ exports.updateCompetitor = async (req, res) => {
 
 exports.deleteCompetitor = async (req, res) => {
     try {
-        const id = Number(req.params.id);
+        const id = validateIdParam(req.params.id);
 
         const result = await competitorService.deleteCompetitor(id);
 

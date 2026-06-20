@@ -1,41 +1,33 @@
-
-
 const prisma = require('../prisma/client');
 
-exports.getAllResults = async () => {
-    return await prisma.result.findMany({
+const resultInclude = {
+    start: {
         include: {
-            start: {
-                include: {
-                    competitor: true,
-                    round: true,
-                    sector: true
-                }
-            }
+            competitor: true,
+            round: true,
+            sector: true
         }
-    });
+    }
 };
 
-exports.getResultById = async (id) => {
-    return await prisma.result.findUnique({
+const findResultOrThrow = async (id) => {
+    const result = await prisma.result.findUnique({
         where: { id },
-        include: {
-            start: {
-                include: {
-                    competitor: true,
-                    round: true,
-                    sector: true
-                }
-            }
-        }
+        include: resultInclude
     });
+
+    if (!result) {
+        const error = new Error('Nie znaleziono wyniku');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    return result;
 };
 
-exports.createResult = async (data) => {
+const findStartOrThrow = async (startId) => {
     const start = await prisma.start.findUnique({
-        where: {
-            id: data.startId
-        }
+        where: { id: startId }
     });
 
     if (!start) {
@@ -44,18 +36,45 @@ exports.createResult = async (data) => {
         throw error;
     }
 
+    return start;
+};
+
+const findRoundOrThrow = async (roundId) => {
+    const round = await prisma.round.findUnique({
+        where: { id: roundId }
+    });
+
+    if (!round) {
+        const error = new Error('Nie znaleziono tury');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    return round;
+};
+
+exports.getAllResults = async () => {
+    return await prisma.result.findMany({
+        include: resultInclude
+    });
+};
+
+exports.getResultById = async (id) => {
+    return await findResultOrThrow(id);
+};
+
+exports.createResult = async (data) => {
+    await findStartOrThrow(data.startId);
+
     try {
         return await prisma.result.create({
-            data
+            data,
+            include: resultInclude
         });
     } catch (error) {
         if (error.code === 'P2002') {
-            const conflictError = new Error(
-                'Ten start ma już przypisany wynik'
-            );
-
+            const conflictError = new Error('Ten start ma już przypisany wynik');
             conflictError.statusCode = 409;
-
             throw conflictError;
         }
 
@@ -64,32 +83,17 @@ exports.createResult = async (data) => {
 };
 
 exports.updateResult = async (id, data) => {
-    const existingResult = await prisma.result.findUnique({
-        where: { id }
-    });
-
-    if (!existingResult) {
-        const error = new Error('Nie znaleziono wyniku');
-        error.statusCode = 404;
-        throw error;
-    }
+    await findResultOrThrow(id);
 
     return await prisma.result.update({
         where: { id },
-        data
+        data,
+        include: resultInclude
     });
 };
 
 exports.deleteResult = async (id) => {
-    const existingResult = await prisma.result.findUnique({
-        where: { id }
-    });
-
-    if (!existingResult) {
-        const error = new Error('Nie znaleziono wyniku');
-        error.statusCode = 404;
-        throw error;
-    }
+    await findResultOrThrow(id);
 
     await prisma.result.delete({
         where: { id }
@@ -101,15 +105,7 @@ exports.deleteResult = async (id) => {
 };
 
 exports.getResultsByRoundId = async (roundId) => {
-    const round = await prisma.round.findUnique({
-        where: { id: roundId }
-    });
-
-    if (!round) {
-        const error = new Error('Nie znaleziono tury');
-        error.statusCode = 404;
-        throw error;
-    }
+    await findRoundOrThrow(roundId);
 
     return await prisma.result.findMany({
         where: {
@@ -117,15 +113,7 @@ exports.getResultsByRoundId = async (roundId) => {
                 roundId
             }
         },
-        include: {
-            start: {
-                include: {
-                    competitor: true,
-                    round: true,
-                    sector: true
-                }
-            }
-        },
+        include: resultInclude,
         orderBy: [
             {
                 sectorPoints: 'asc'
