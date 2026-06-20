@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16
+    container_name: fishing-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fishing_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - fishing_postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: fishing-api
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/fishing_db
+      JWT_SECRET: your_jwt_secret
+      JWT_EXPIRES_IN: 2h
+    depends_on:
+      - db
+
+volumes:
+  fishing_postgres_data:
