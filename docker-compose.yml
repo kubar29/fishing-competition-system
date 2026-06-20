@@ -18,11 +18,8 @@ services:
     restart: always
     ports:
       - "3000:3000"
-    environment:
-      PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/fishing_db
-      JWT_SECRET: your_jwt_secret
-      JWT_EXPIRES_IN: 2h
+    env_file:
+      - .env.docker
     depends_on:
       - db
 
