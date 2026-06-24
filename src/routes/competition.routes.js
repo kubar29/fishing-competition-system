@@ -18,6 +18,8 @@ const competitionController = require('../controllers/competition.controller')
  */
 router.get('/', competitionController.getAllCompetitions);
 
+router.get('/:id/structure', competitionController.getCompetitionStructure);
+
 /**
  * @swagger
  * /competitions/{id}:

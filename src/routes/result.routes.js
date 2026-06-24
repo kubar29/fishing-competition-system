@@ -20,6 +20,11 @@ const resultController = require('../controllers/result.controller');
  */
 router.get('/', resultController.getAllResults);
 
+router.get(
+    '/competition/:competitionId/round/:roundId/sector/:sectorId',
+    resultController.getResultsByCompetitionRoundAndSector
+);
+
 
 /**
  * @swagger

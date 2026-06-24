@@ -48,3 +48,40 @@ exports.deleteCompetition = async (id) => {
         message: 'Usunięto zawody'
     };
 };
+exports.getCompetitionStructure = async (competitionId) => {
+    const competition = await prisma.competition.findUnique({
+        where: { id: competitionId },
+        include: {
+            rounds: {
+                include: {
+                    sectors: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    }
+                },
+                orderBy: {
+                    number: 'asc'
+                }
+            }
+        }
+    });
+
+    if (!competition) {
+        const error = new Error('Nie znaleziono zawodów');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    return {
+        competitionId: competition.id,
+        competitionName: competition.name,
+        rounds: competition.rounds.map((round) => ({
+            id: round.id,
+            name: round.name,
+            number: round.number,
+            sectors: round.sectors
+        }))
+    };
+};

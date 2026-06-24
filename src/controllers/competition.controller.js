@@ -113,3 +113,23 @@ exports.deleteCompetition = async (req, res) => {
         });
     }
 };
+
+exports.getCompetitionStructure = async (req, res) => {
+    try {
+        const competitionId = validateIdParam(req.params.id);
+
+        const structure = await competitionService.getCompetitionStructure(
+            competitionId
+        );
+
+        res.json(structure);
+    } catch (error) {
+        console.error(error);
+
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd pobierania struktury zawodów'
+        });
+    }
+};
