@@ -121,3 +121,55 @@ exports.getResultsByRoundId = async (roundId) => {
         ]
     });
 };
+exports.getResultsByCompetitionRoundAndSector = async (
+    competitionId,
+    roundId,
+    sectorId
+) => {
+    const round = await prisma.round.findFirst({
+        where: {
+            id: roundId,
+            competitionId
+        }
+    });
+
+    if (!round) {
+        const error = new Error('Nie znaleziono tury dla wybranych zawodów');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    const sector = await prisma.sector.findFirst({
+        where: {
+            id: sectorId,
+            roundId
+        }
+    });
+
+    if (!sector) {
+        const error = new Error('Nie znaleziono sektora dla wybranej tury');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    return await prisma.result.findMany({
+        where: {
+            start: {
+                roundId,
+                sectorId
+            }
+        },
+        include: {
+            start: {
+                include: {
+                    competitor: true,
+                    round: true,
+                    sector: true
+                }
+            }
+        },
+        orderBy: {
+            placeInSector: 'asc'
+        }
+    });
+};

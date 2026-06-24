@@ -1,0 +1,5505 @@
+{
+  "info": {
+    "_postman_id": "aa14475c-1642-4203-8d26-7879cde26c98",
+    "name": "Fishing Competition System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36347491"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "01_Register_Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono użytkownika\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"judgeEmail\", json.email);\r",
+                  "pm.environment.set(\"judgeUserId\", json.id);\r",
+                  "\r",
+                  "pm.test(\"Rola to JUDGE\", function () {\r",
+                  "    pm.expect(json.role).to.eql(\"JUDGE\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Sedzia Testowy\",\r\n  \"email\": \"sedzia{{$timestamp}}@test.pl\",\r\n  \"password\": \"123456\",\r\n  \"role\": \"JUDGE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Login_Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - zalogowano użytkownika\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"judgeToken\", json.token);\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera token\", function () {\r",
+                  "    pm.expect(json.token).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Użytkownik ma rolę JUDGE\", function () {\r",
+                  "    pm.expect(json.user.role).to.eql(\"JUDGE\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{judgeEmail}}\",\r\n  \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Get_Me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - pobrano dane użytkownika\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Email zgodny z zalogowanym sędzią\", function () {\r",
+                  "    pm.expect(json.email).to.eql(\r",
+                  "        pm.environment.get(\"judgeEmail\")\r",
+                  "    );\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01_Register_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono organizatora\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"organizerEmail\", json.email);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Organizer Testowy\",\r\n  \"email\": \"organizer{{$timestamp}}@test.pl\",\r\n  \"password\": \"123456\",\r\n  \"role\": \"ORGANIZER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Login_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - zalogowano organizatora\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"organizerToken\", json.token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{organizerEmail}}\",\r\n  \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Register_Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono admina\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"adminEmail\", json.email);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Admin Testowy\",\r\n  \"email\": \"admin{{$timestamp}}@test.pl\",\r\n  \"password\": \"123456\",\r\n  \"role\": \"ADMIN\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Login_Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - zalogowano admina\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"adminToken\", json.token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{adminEmail}}\",\r\n  \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Get_Me_Without_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - brak tokenu\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05_Login_Wrong_Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - błędne hasło\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{authEmail}}\",\r\n  \"password\": \"wrongpassword\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07_Register_User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 lub 409 - rejestracja USER\", function () {\r",
+                  "    pm.expect([201, 409]).to.include(pm.response.code);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"User Test\",\r\n  \"email\": \"user@test.pl\",\r\n  \"password\": \"123456\",\r\n  \"role\": \"USER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08_Login_User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - zalogowano USER\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Zapisano userToken\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json).to.have.property(\"token\");\r",
+                  "\r",
+                  "    pm.environment.set(\"userToken\", json.token);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"user@test.pl\",\r\n  \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Competitions",
+      "item": [
+        {
+          "name": "01_Get_All_Competitions_Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - lista zawodów jest publiczna\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź jest tablicą\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competitions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Create_Competition_Without_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - brak tokenu\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Zawody bez tokenu\",\r\n  \"date\": \"2026-06-21T09:00:00.000Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Create_Competition_As_Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - sędzia nie może tworzyć zawodów\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Zawody sedziego\",\r\n  \"date\": \"2026-06-21T09:00:00.000Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Create_Competition_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - organizator może utworzyć zawody\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"competitionId\", json.id);\r",
+                  "\r",
+                  "pm.test(\"Competition ID zapisane\", function () {\r",
+                  "    pm.expect(json.id).to.exist;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Zawody organizer {{$timestamp}}\",\r\n  \"date\": \"2026-06-21T09:00:00.000Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05_Get_Competition_By_Id",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/competitions/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "competitions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06_Update_Competition_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - zawody zaktualizowane\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Nazwa została zmieniona\", function () {\r",
+                  "    pm.expect(json.name).to.eql(\r",
+                  "        \"Zawody zaktualizowane przez organizatora\"\r",
+                  "    );\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Zawody zaktualizowane przez organizatora\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitions/{{competitionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions",
+                "{{competitionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07_Update_Competition_Wrong_Date",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 400 - błędna data\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Zwrócono błędy walidacji\", function () {\r",
+                  "    pm.expect(json.errors).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"date\": \"zla-data\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitions/{{competitionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions",
+                "{{competitionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08_Get_Competition_Not_Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - nie znaleziono zawodów\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competitions/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09_Delete_Competition_As_Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - sędzia nie może usuwać zawodów\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competitions/{{competitionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions",
+                "{{competitionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10_Delete_Competition_As_Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - admin może usunąć zawody\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competitions/{{competitionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions",
+                "{{competitionId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Competitiors",
+      "item": [
+        {
+          "name": "01_Get_All_Competitors_Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - lista zawodników jest publiczna\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź jest tablicą\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competitors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Create_Competitor_Without_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - brak tokenu\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Zawodnik\",\r\n  \"surname\": \"BezTokena\",\r\n  \"category\": \"SENIOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Create_Competitor_As_Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - sędzia nie może tworzyć zawodników\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Zawodnik\",\r\n  \"surname\": \"Sedziego\",\r\n  \"category\": \"SENIOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Create_Competitor_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - organizator może utworzyć zawodnika\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera ID zawodnika\", function () {\r",
+                  "    pm.expect(json.id).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"competitor1Id\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Jan {{$timestamp}}\",\r\n  \"surname\": \"Kowalski\",\r\n  \"category\": \"SENIOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05_Get_Competitor_By_Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - pobrano zawodnika po ID\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"ID zawodnika jest zgodne ze zmienną\", function () {\r",
+                  "    pm.expect(json.id).to.eql(\r",
+                  "        Number(pm.environment.get(\"competitor1Id\"))\r",
+                  "    );\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competitors/{{competitor1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors",
+                "{{competitor1Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06_Update_Competitor_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - organizator może edytować zawodnika\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Imię zostało zaktualizowane\", function () {\r",
+                  "    pm.expect(json.name).to.eql(\"Jan Zaktualizowany\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Kategoria została zaktualizowana\", function () {\r",
+                  "    pm.expect(json.category).to.eql(\"U25\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Jan Zaktualizowany\",\r\n  \"category\": \"U25\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitors/{{competitor1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors",
+                "{{competitor1Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07_Update_Competitor_Wrong_Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 400 - błędna kategoria\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera listę błędów\", function () {\r",
+                  "    pm.expect(json.errors).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"category\": \"JUNIOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitors/{{competitor1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors",
+                "{{competitor1Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08_Get_Competitor_Not_Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - nie znaleziono zawodnika\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competitors/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09_Delete_Competitor_As_Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - sędzia nie może usuwać zawodnika\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competitors/{{competitor1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors",
+                "{{competitor1Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10_Delete_Competitor_As_Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - admin może usunąć zawodnika\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/competitors/{{competitor1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors",
+                "{{competitor1Id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Team",
+      "item": [
+        {
+          "name": "01_Get_All_Teams_Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - lista drużyn jest publiczna\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź jest tablicą\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Create_Team_Without_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - brak tokenu\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Druzyna bez tokenu\",\r\n  \"competitionId\": {{competitionId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Create_Team_As_Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - sędzia nie może tworzyć drużyn\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Druzyna sedziego\",\r\n  \"competitionId\": {{competitionId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Create_Team_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - organizator może utworzyć drużynę\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera ID drużyny\", function () {\r",
+                  "    pm.expect(json.id).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"teamId\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Druzyna organizatora {{$timestamp}}\",\r\n  \"competitionId\": {{competitionId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05_Get_Team_By_Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - pobrano drużynę po ID\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"ID drużyny jest zgodne ze zmienną\", function () {\r",
+                  "    pm.expect(json.id).to.eql(\r",
+                  "        Number(pm.environment.get(\"teamId\"))\r",
+                  "    );\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Drużyna zawiera dane zawodów\", function () {\r",
+                  "    pm.expect(json.competition).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Drużyna zawiera listę członków\", function () {\r",
+                  "    pm.expect(json.members).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06_Update_Team_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - organizator może edytować drużynę\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Nazwa drużyny została zaktualizowana\", function () {\r",
+                  "    pm.expect(json.name).to.eql(\r",
+                  "        \"Druzyna zaktualizowana przez organizatora\"\r",
+                  "    );\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Druzyna zaktualizowana przez organizatora\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07_Create_Team_Wrong_Competition",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - nie znaleziono zawodów\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Druzyna z błędnymi zawodami\",\r\n  \"competitionId\": 999999\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08_Create_Team_Missing_Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 400 - brak nazwy drużyny\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera listę błędów\", function () {\r",
+                  "    pm.expect(json.errors).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitionId\": {{competitionId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09_Get_Team_Not_Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - nie znaleziono drużyny\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10_Delete_Team_As_Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - sędzia nie może usuwać drużyny\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "11_Delete_Team_As_Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - admin może usunąć drużynę\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Team Members",
+      "item": [
+        {
+          "name": "01_Get_Team_Members_Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - skład drużyny jest publiczny\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź jest tablicą\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Add_Member_Without_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - brak tokenu\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor1Id}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Add_Member_As_Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - sędzia nie może dodawać zawodnika do drużyny\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor1Id}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Add_Member_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - organizator może dodać zawodnika do drużyny\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera zawodnika\", function () {\r",
+                  "    pm.expect(json.competitor).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Dodano właściwego zawodnika\", function () {\r",
+                  "    pm.expect(json.competitorId).to.eql(\r",
+                  "        Number(pm.environment.get(\"competitor1Id\"))\r",
+                  "    );\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor1Id}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05_Add_Duplicate_Member",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 409 - zawodnik już jest w drużynie\", function () {\r",
+                  "    pm.response.to.have.status(409);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor1Id}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06_Get_Team_Members_After_Add",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - pobrano skład po dodaniu\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Lista zawiera co najmniej jednego członka\", function () {\r",
+                  "    pm.expect(json.length).to.be.at.least(1);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Lista zawiera dodanego zawodnika\", function () {\r",
+                  "    const competitorId = Number(pm.environment.get(\"competitor1Id\"));\r",
+                  "\r",
+                  "    const found = json.some(member => member.competitorId === competitorId);\r",
+                  "\r",
+                  "    pm.expect(found).to.eql(true);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07_Add_Member_Missing_CompetitorId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 400 - brak competitorId\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera listę błędów\", function () {\r",
+                  "    pm.expect(json.errors).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08_Add_Member_Wrong_Competitor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - zawodnik nie istnieje\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": 999999\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09_Get_Team_Members_Wrong_Team",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - drużyna nie istnieje\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams/999999/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "999999",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10_Remove_Member_As_Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - sędzia nie może usuwać członka drużyny\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members/{{competitor1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members",
+                "{{competitor1Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "11_Remove_Member_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - organizator może usunąć członka drużyny\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members/{{competitor1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members",
+                "{{competitor1Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "12_Remove_Member_Not_Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - zawodnik nie należy do drużyny\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members/{{competitor1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members",
+                "{{competitor1Id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Test Data",
+      "item": [
+        {
+          "name": "01_Create_Competition",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono zawody\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera ID zawodów\", function () {\r",
+                  "    pm.expect(json.id).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"competitionId\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Zawody testowe {{$timestamp}}\",\r\n  \"date\": \"2026-06-21T09:00:00.000Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Create_Competitor1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono zawodnika 1\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"competitor1Id\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Jan {{$timestamp}}\",\r\n  \"surname\": \"Kowalski\",\r\n  \"category\": \"SENIOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05_Create_Competitor2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono zawodnika 2\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"competitor2Id\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Piotr {{$timestamp}}\",\r\n  \"surname\": \"Nowak\",\r\n  \"category\": \"SENIOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06_Create_Competitor3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono zawodnika 3\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"competitor3Id\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Adam {{$timestamp}}\",\r\n  \"surname\": \"Wisniewski\",\r\n  \"category\": \"SENIOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07_Create_Competitor4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono zawodnika 4\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"competitor4Id\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Marek {{$timestamp}}\",\r\n  \"surname\": \"Zielinski\",\r\n  \"category\": \"SENIOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/competitors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Create_Round",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono turę\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera ID tury\", function () {\r",
+                  "    pm.expect(json.id).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"roundId\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"I tura\",\r\n  \"number\": 1,\r\n  \"competitionId\": {{competitionId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rounds",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "12_Create_team",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - organizator może utworzyć drużynę\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera ID drużyny\", function () {\r",
+                  "    pm.expect(json.id).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"teamId\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Druzyna organizatora {{$timestamp}}\",\r\n  \"competitionId\": {{competitionId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Create_Sector",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono sektor\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera ID sektora\", function () {\r",
+                  "    pm.expect(json.id).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"sectorId\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"A\",\r\n  \"roundId\": {{roundId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sectors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08_Create_Start1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono start 1\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"start1Id\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor1Id}},\r\n  \"roundId\": {{roundId}},\r\n  \"sectorId\": {{sectorId}},\r\n  \"position\": 1,\r\n  \"weight\": 5000,\r\n  \"penaltyPoints\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09_Create_Start2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono start 2\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"start2Id\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor2Id}},\r\n  \"roundId\": {{roundId}},\r\n  \"sectorId\": {{sectorId}},\r\n  \"position\": 2,\r\n  \"weight\": 3000,\r\n  \"penaltyPoints\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10_Create_Start3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono start 3\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"start3Id\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor3Id}},\r\n  \"roundId\": {{roundId}},\r\n  \"sectorId\": {{sectorId}},\r\n  \"position\": 3,\r\n  \"weight\": 3000,\r\n  \"penaltyPoints\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "11_Create_Start4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - utworzono start 4\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.environment.set(\"start4Id\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor4Id}},\r\n  \"roundId\": {{roundId}},\r\n  \"sectorId\": {{sectorId}},\r\n  \"position\": 4,\r\n  \"weight\": 1000,\r\n  \"penaltyPoints\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Results",
+      "item": [
+        {
+          "name": "01_Calculate_Sector_Results",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - obliczono wyniki sektora\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź jest tablicą\", function () {\r",
+                  "    pm.expect(json).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Zwrócono 4 wyniki\", function () {\r",
+                  "    pm.expect(json.length).to.eql(4);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Pierwszy zawodnik ma 5000g i 1 punkt\", function () {\r",
+                  "    pm.expect(json[0].weight).to.eql(5000);\r",
+                  "    pm.expect(json[0].sectorPoints).to.eql(1);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Drugi i trzeci zawodnik mają remis po 2.5 punktu\", function () {\r",
+                  "    pm.expect(json[1].weight).to.eql(3000);\r",
+                  "    pm.expect(json[2].weight).to.eql(3000);\r",
+                  "    pm.expect(json[1].sectorPoints).to.eql(2.5);\r",
+                  "    pm.expect(json[2].sectorPoints).to.eql(2.5);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Czwarty zawodnik ma 6 punktów przez karę\", function () {\r",
+                  "    pm.expect(json[3].weight).to.eql(1000);\r",
+                  "    pm.expect(json[3].penaltyPoints).to.eql(2);\r",
+                  "    pm.expect(json[3].sectorPoints).to.eql(6);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/results/calculate/round/{{roundId}}/sector/{{sectorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results",
+                "calculate",
+                "round",
+                "{{roundId}}",
+                "sector",
+                "{{sectorId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Generate_Sector_Results",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - wygenerowano wyniki sektora\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź jest tablicą\", function () {\r",
+                  "    pm.expect(json).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Zapisano 4 wyniki\", function () {\r",
+                  "    pm.expect(json.length).to.eql(4);\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"resultId\", json[0].id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/results/generate/round/{{roundId}}/sector/{{sectorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results",
+                "generate",
+                "round",
+                "{{roundId}}",
+                "sector",
+                "{{sectorId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Get_All_Results Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - pobrano wyniki\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź jest tablicą\", function () {\r",
+                  "    pm.expect(json).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Lista wyników nie jest pusta\", function () {\r",
+                  "    pm.expect(json.length).to.be.above(0);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Get_Resul_tBy_ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - pobrano wynik po ID\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"ID wyniku jest zgodne ze zmienną resultId\", function () {\r",
+                  "    pm.expect(json.id).to.eql(Number(pm.environment.get(\"resultId\")));\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/results/{{resultId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results",
+                "{{resultId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05_Get_Results_By_Round",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - pobrano wyniki tury\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź jest tablicą\", function () {\r",
+                  "    pm.expect(json).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Wyniki tury zawierają co najmniej 4 wyniki\", function () {\r",
+                  "    pm.expect(json.length).to.be.at.least(4);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/results/round/{{roundId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results",
+                "round",
+                "{{roundId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06_Update_Result",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - zaktualizowano wynik\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Notatka została zaktualizowana\", function () {\r",
+                  "    pm.expect(json.notes).to.eql(\"Wynik sprawdzony w teście Postman\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Status wyniku to CONFIRMED\", function () {\r",
+                  "    pm.expect(json.status).to.eql(\"CONFIRMED\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"notes\": \"Wynik sprawdzony w teście Postman\",\r\n  \"status\": \"CONFIRMED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/results/{{resultId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results",
+                "{{resultId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07_Create_Result_Duplicate_Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 409 - wynik dla startu już istnieje\", function () {\r",
+                  "    pm.response.to.have.status(409);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Komunikat błędu jest poprawny\", function () {\r",
+                  "    pm.expect(json.message).to.eql(\"Ten start ma już przypisany wynik\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"startId\": {{start1Id}},\r\n  \"placeInSector\": 1,\r\n  \"sectorPoints\": 1,\r\n  \"finalPoints\": 1,\r\n  \"status\": \"CONFIRMED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08_Create_Result_Wrong_Start_Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - nie znaleziono startu\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Komunikat błędu jest poprawny\", function () {\r",
+                  "    pm.expect(json.message).to.eql(\"Nie znaleziono startu\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"startId\": 999999,\r\n  \"placeInSector\": 1,\r\n  \"sectorPoints\": 1,\r\n  \"finalPoints\": 1,\r\n  \"status\": \"CONFIRMED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09_Create_Result_Negative_Points_Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 400 - błędne dane wejściowe\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera listę błędów\", function () {\r",
+                  "    pm.expect(json.errors).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"startId\": {{start2Id}},\r\n  \"placeInSector\": 1,\r\n  \"sectorPoints\": -5,\r\n  \"finalPoints\": 1,\r\n  \"status\": \"CONFIRMED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth Protected Results",
+      "item": [
+        {
+          "name": "01_Generate_Results_Without_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - brak tokenu\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/results/generate/round/{{roundId}}/sector/{{sectorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results",
+                "generate",
+                "round",
+                "{{roundId}}",
+                "sector",
+                "{{sectorId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Generate_Results_With_Judge_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - sędzia może generować wyniki\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/results/generate/round/{{roundId}}/sector/{{sectorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results",
+                "generate",
+                "round",
+                "{{roundId}}",
+                "sector",
+                "{{sectorId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Create_Result_Without_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - brak tokenu\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"startId\": {{start1Id}},\r\n  \"placeInSector\": 1,\r\n  \"sectorPoints\": 1,\r\n  \"finalPoints\": 1,\r\n  \"status\": \"CONFIRMED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/results",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "results"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rounds",
+      "item": [
+        {
+          "name": "01_Get_All_Rounds_Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - publicznie pobrano listę tur\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rounds",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Create_Round_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - ORGANIZER może utworzyć turę\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera ID tury i zapisuje roundId\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json).to.have.property(\"id\");\r",
+                  "    pm.environment.set(\"roundId\", json.id);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Tura 1\",\r\n  \"number\": 1,\r\n  \"competitionId\": {{competitionId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rounds",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Get_Round_By_Id_Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - publicznie pobrano turę po ID\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera relacje tury\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json).to.have.property(\"competition\");\r",
+                  "    pm.expect(json).to.have.property(\"sectors\");\r",
+                  "    pm.expect(json).to.have.property(\"starts\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rounds/{{roundId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds",
+                "{{roundId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Update_Round_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - ORGANIZER może zaktualizować turę\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Nazwa tury została zaktualizowana\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json.name).to.eql(\"Tura 1 - poprawiona\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Tura 1 - poprawiona\",\r\n  \"number\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rounds/{{roundId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds",
+                "{{roundId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05_Create_Round_Without_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - nie można utworzyć tury bez tokenu\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Tura bez tokenu\",\r\n  \"number\": 2,\r\n  \"competitionId\": {{competitionId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rounds",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06_Create_Round_As_User_Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - USER nie może utworzyć tury\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Tura USER\",\r\n  \"number\": 2,\r\n  \"competitionId\": {{competitionId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rounds",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07_Create_Round_Invalid_Body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 400 - DTO odrzuca niepoprawne dane\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera listę błędów walidacji\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json).to.have.property(\"errors\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rounds",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08_Get_Round_By_Id_Not_Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - nie znaleziono tury\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rounds/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09_Update_Round_As_User_Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - USER nie może zaktualizować tury\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Tura USER update\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rounds/{{roundId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds",
+                "{{roundId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10_Delete_Round_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - ORGANIZER może usunąć turę\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź potwierdza usunięcie tury\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json.message).to.eql(\"Usunięto turę\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rounds/{{roundId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rounds",
+                "{{roundId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sectors",
+      "item": [
+        {
+          "name": "01_Get_All_Sectors_Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - publicznie pobrano listę sektorów\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sectors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Create_Sector_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - ORGANIZER może utworzyć sektor\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera ID sektora i zapisuje sectorId\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json).to.have.property(\"id\");\r",
+                  "    pm.environment.set(\"sectorId\", json.id);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Sektor A\",\r\n  \"roundId\": {{roundId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sectors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Get_Sector_By_Id_Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - publicznie pobrano sektor po ID\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera relacje sektora\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json).to.have.property(\"round\");\r",
+                  "    pm.expect(json).to.have.property(\"starts\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sectors/{{sectorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors",
+                "{{sectorId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Update_Sector_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - ORGANIZER może zaktualizować sektor\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Nazwa sektora została zaktualizowana\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json.name).to.eql(\"Sektor A - poprawiony\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Sektor A - poprawiony\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sectors/{{sectorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors",
+                "{{sectorId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05_Create_Sector_Without_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - nie można utworzyć sektora bez tokenu\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Sektor bez tokenu\",\r\n  \"roundId\": {{roundId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sectors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06_Create_Sector_As_User_Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - USER nie może utworzyć sektora\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Sektor USER\",\r\n  \"roundId\": {{roundId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sectors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07_Create_Sector_Invalid_Body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 400 - DTO odrzuca niepoprawne dane\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera listę błędów walidacji\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json).to.have.property(\"errors\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sectors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08_Get_Sector_By_Id_Not_Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - nie znaleziono sektora\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sectors/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09_Get_Sector_Invalid_Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 400 - nieprawidłowe ID sektora\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sectors/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors",
+                "abc"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10_Update_Sector_As_User_Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - USER nie może zaktualizować sektora\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Sektor USER update\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sectors/{{sectorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors",
+                "{{sectorId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "11_Delete_Sector_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - ORGANIZER może usunąć sektor\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź potwierdza usunięcie sektora\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json.message).to.eql(\"Usunięto sektor\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sectors/{{sectorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors",
+                "{{sectorId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Starts",
+      "item": [
+        {
+          "name": "01_Get_All_Starts_Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - publicznie pobrano listę startów\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/starts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02_Create_Start_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 - ORGANIZER może utworzyć start\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera ID startu i zapisuje start1Id\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json).to.have.property(\"id\");\r",
+                  "    pm.environment.set(\"start1Id\", json.id);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor1Id}},\r\n  \"roundId\": {{roundId}},\r\n  \"sectorId\": {{sectorId}},\r\n  \"position\": 1,\r\n  \"weight\": 2500,\r\n  \"penaltyPoints\": 0,\r\n  \"sectorPoints\": 1,\r\n  \"subSector\": \"A1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03_Get_Start_By_Id_Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - publicznie pobrano start po ID\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera relacje startu\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json).to.have.property(\"competitor\");\r",
+                  "    pm.expect(json).to.have.property(\"round\");\r",
+                  "    pm.expect(json).to.have.property(\"sector\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/starts/{{start1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts",
+                "{{start1Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04_Update_Start_As_Organizer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - ORGANIZER może zaktualizować start\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Waga startu została zaktualizowana\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json.weight).to.eql(3200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"weight\": 3200,\r\n  \"penaltyPoints\": 1,\r\n  \"sectorPoints\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts/{{start1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts",
+                "{{start1Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05_Create_Start_Without_Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401 - nie można utworzyć startu bez tokenu\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor2Id}},\r\n  \"roundId\": {{roundId}},\r\n  \"sectorId\": {{sectorId}},\r\n  \"position\": 2,\r\n  \"weight\": 1800\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06_Create_Start_As_User_Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - USER nie może utworzyć startu\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor2Id}},\r\n  \"roundId\": {{roundId}},\r\n  \"sectorId\": {{sectorId}},\r\n  \"position\": 2,\r\n  \"weight\": 1800\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07_Create_Start_Invalid_Body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 400 - DTO odrzuca niepoprawne dane\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź zawiera listę błędów walidacji\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json).to.have.property(\"errors\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08_Create_Duplicate_Start_Conflict",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 409 - zawodnik ma już start w tej turze\", function () {\r",
+                  "    pm.response.to.have.status(409);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"competitorId\": {{competitor1Id}},\r\n  \"roundId\": {{roundId}},\r\n  \"sectorId\": {{sectorId}},\r\n  \"position\": 3,\r\n  \"weight\": 1000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09_Get_Start_By_Id_Not_Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 404 - nie znaleziono startu\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/starts/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts",
+                "999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10_Get_Start_Invalid_Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 400 - nieprawidłowe ID startu\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/starts/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts",
+                "abc"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "11_Update_Start_As_User_Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 403 - USER nie może zaktualizować startu\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"weight\": 4000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/starts/{{start1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts",
+                "{{start1Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "FISHING COMPETITION SYSTEM — STAN PROJEKTU (czerwiec 2026) Temat projektu  REST API do obsługi zawodów wędkarskich.  Technologie:  Node.js Express Prisma ORM PostgreSQL Docker Postman JWT  Architektura:  DTO ↓ Service ↓ Controller ↓ Prisma ↓ PostgreSQL Ak",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 - ORGANIZER może usunąć start\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Odpowiedź potwierdza usunięcie startu\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json.message).to.eql(\"Usunięto start\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{organizerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/starts/{{start1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "starts",
+                "{{start1Id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": ""
+    },
+    {
+      "key": "competitionId",
+      "value": ""
+    },
+    {
+      "key": "competitor1Id",
+      "value": ""
+    },
+    {
+      "key": "roundId",
+      "value": ""
+    },
+    {
+      "key": "sectorId",
+      "value": ""
+    },
+    {
+      "key": "start1Id",
+      "value": ""
+    },
+    {
+      "key": "resultId",
+      "value": ""
+    },
+    {
+      "key": "competitor2Id",
+      "value": ""
+    },
+    {
+      "key": "competitor3Id",
+      "value": ""
+    },
+    {
+      "key": "competitor4Id",
+      "value": ""
+    },
+    {
+      "key": "startId",
+      "value": ""
+    },
+    {
+      "key": "star2tId",
+      "value": ""
+    },
+    {
+      "key": "star3tId",
+      "value": ""
+    }
+  ]
+}

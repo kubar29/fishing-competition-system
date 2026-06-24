@@ -176,3 +176,27 @@ exports.generateSectorResults = async (req, res) => {
         });
     }
 };
+exports.getResultsByCompetitionRoundAndSector = async (req, res) => {
+    try {
+        const competitionId = validateIdParam(req.params.competitionId);
+        const roundId = validateIdParam(req.params.roundId);
+        const sectorId = validateIdParam(req.params.sectorId);
+
+        const results =
+            await resultService.getResultsByCompetitionRoundAndSector(
+                competitionId,
+                roundId,
+                sectorId
+            );
+
+        res.json(results);
+    } catch (error) {
+        console.error(error);
+
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd pobierania wyników dla sektora'
+        });
+    }
+};
