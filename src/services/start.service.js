@@ -71,6 +71,14 @@ const validateSectorBelongsToRound = (sector, roundId, message) => {
     }
 };
 
+const validateRoundBelongsToCompetition = (round, competitionId) => {
+    if (round.competitionId !== competitionId) {
+        const error = new Error('Tura nie należy do wybranych zawodów');
+        error.statusCode = 400;
+        throw error;
+    }
+};
+
 exports.getAllStarts = async () => {
     return await prisma.start.findMany({
         include: startInclude
@@ -129,4 +137,33 @@ exports.deleteStart = async (id) => {
     return {
         message: 'Usunięto start'
     };
+};
+
+exports.getStartsByCompetitionRoundAndSector = async (
+    competitionId,
+    roundId,
+    sectorId
+) => {
+    const round = await findRoundOrThrow(roundId);
+
+    validateRoundBelongsToCompetition(round, competitionId);
+
+    const sector = await findSectorOrThrow(sectorId);
+
+    validateSectorBelongsToRound(
+        sector,
+        roundId,
+        'Sektor nie należy do wybranej tury'
+    );
+
+    return await prisma.start.findMany({
+        where: {
+            roundId,
+            sectorId
+        },
+        include: startInclude,
+        orderBy: {
+            position: 'asc'
+        }
+    });
 };

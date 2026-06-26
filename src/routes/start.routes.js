@@ -18,6 +18,11 @@ const startController = require('../controllers/start.controller');
  */
 router.get('/', startController.getAllStarts);
 
+router.get(
+    '/competition/:competitionId/round/:roundId/sector/:sectorId',
+    startController.getStartsByCompetitionRoundAndSector
+);
+
 /**
  * @swagger
  * /starts/{id}:

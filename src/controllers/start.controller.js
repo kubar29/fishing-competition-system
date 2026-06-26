@@ -105,3 +105,27 @@ exports.deleteStart = async (req, res) => {
         });
     }
 };
+
+exports.getStartsByCompetitionRoundAndSector = async (req, res) => {
+    try {
+        const competitionId = validateIdParam(req.params.competitionId);
+        const roundId = validateIdParam(req.params.roundId);
+        const sectorId = validateIdParam(req.params.sectorId);
+
+        const starts = await startService.getStartsByCompetitionRoundAndSector(
+            competitionId,
+            roundId,
+            sectorId
+        );
+
+        res.json(starts);
+    } catch (error) {
+        console.error(error);
+
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd pobierania startów dla sektora'
+        });
+    }
+};
