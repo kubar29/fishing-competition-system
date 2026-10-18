@@ -145,6 +145,28 @@ const validateJudgeAccessToSector = async (userId, sectorId) => {
     }
 };
 
+const updateSectorStatusIfReady = async (sectorId) => {
+    const starts = await prisma.start.findMany({
+        where: { sectorId },
+        select: {
+            status: true
+        }
+    });
+
+    const isReady = 
+        starts.length > 0 && 
+        starts.every((start) => ['WEIGHED', 'DNS', 'DSQ'].includes(start.status));
+    
+    if(isReady) {
+        await prisma.sector.update({
+            where: {id: sectorId },
+            data: {
+                status: 'READY_FOR_RESULTS'
+            }
+        });
+    }
+};
+
 exports.getAllStarts = async () => {
     return await prisma.start.findMany({
         include: startInclude
@@ -276,7 +298,7 @@ exports.weighStart = async (id, data, user) => {
         );
     }
 
-    return await prisma.start.update({
+    const updatedStart = await prisma.start.update({
         where: { id },
         data: {
             weight: data.weight,
@@ -285,4 +307,8 @@ exports.weighStart = async (id, data, user) => {
         },
         include: startInclude
     });
+
+    await updateSectorStatusIfReady(start.sectorId);
+
+    return updatedStart;
 };

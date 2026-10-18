@@ -59,10 +59,15 @@ router.get('/:id', startController.getStartById);
  *           schema:
  *             type: object
  *             required:
+ *               - competitionEntryId
  *               - competitorId
  *               - roundId
  *               - sectorId
+ *               - pegNumber
  *             properties:
+ *               competitionEntryId:
+ *                 type: integer
+ *                 example: 1
  *               competitorId:
  *                 type: integer
  *                 example: 1
@@ -72,28 +77,16 @@ router.get('/:id', startController.getStartById);
  *               sectorId:
  *                 type: integer
  *                 example: 1
- *               position:
+ *               pegNumber:
  *                 type: integer
  *                 example: 5
- *               weight:
- *                 type: integer
- *                 example: 7230
- *               penaltyPoints:
- *                 type: integer
- *                 example: 0
- *               sectorPoints:
- *                 type: number
- *                 example: 5
- *               subSector:
- *                 type: string
- *                 example: A1
  *     responses:
  *       201:
  *         description: Utworzono start
  *       400:
  *         description: Nieprawidłowe dane
  *       404:
- *         description: Nie znaleziono zawodnika, tury lub sektora
+ *         description: Nie znaleziono zawodnika, zgłoszenia, tury lub sektora
  *       409:
  *         description: Zawodnik ma już start w tej turze
  *       403:
@@ -105,6 +98,50 @@ router.post(
     roleMiddleware('ADMIN', 'ORGANIZER'),
     startController.createStart
 );
+
+/**
+ * @swagger
+ * /starts/{id}/weigh:
+ *   patch:
+ *     summary: Zapisz wynik ważenia zawodnika
+ *     tags: [Starts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - weight
+ *             properties:
+ *               weight:
+ *                 type: integer
+ *                 minimum: 0
+ *                 example: 7230
+ *               penaltyPoints:
+ *                 type: integer
+ *                 minimum: 0
+ *                 example: 2
+ *     responses:
+ *       200:
+ *         description: Wynik ważenia zapisany
+ *       400:
+ *         description: Nieprawidłowe dane
+ *       403:
+ *         description: Brak uprawnień do sektora
+ *       404:
+ *         description: Nie znaleziono startu
+ *       409:
+ *         description: Sektor został zakończony
+ */
 
 router.patch(
     '/:id/weigh',
@@ -118,7 +155,7 @@ router.patch(
  * @swagger
  * /starts/{id}:
  *   put:
- *     summary: Aktualizuj start
+ *     summary: Aktualizuj dane organizacyjne startu
  *     tags: [Starts]
  *     security:
  *       - bearerAuth: []
@@ -136,28 +173,24 @@ router.patch(
  *             properties:
  *               sectorId:
  *                 type: integer
- *               position:
+ *                 example: 1
+ *               pegNumber:
  *                 type: integer
- *               weight:
- *                 type: integer
- *               penaltyPoints:
- *                 type: integer
- *               sectorPoints:
- *                 type: number
- *               subSector:
- *                 type: string
+ *                 example: 5
  *     responses:
  *       200:
  *         description: Start zaktualizowany
+ *       400:
+ *         description: Nieprawidłowe dane
  *       404:
- *         description: Nie znaleziono startu
+ *         description: Nie znaleziono startu lub sektora
  *       403:
  *         description: Brak uprawnień
  */
 router.put(
     '/:id',
     authMiddleware,
-    roleMiddleware('ADMIN', 'ORGANIZER', 'JUDGE'),
+    roleMiddleware('ADMIN', 'ORGANIZER'),
     startController.updateStart
 );
 
