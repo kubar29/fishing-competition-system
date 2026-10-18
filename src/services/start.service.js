@@ -2,6 +2,7 @@ const prisma = require('../prisma/client');
 
 const startInclude = {
     competitor: true,
+    competitionEntry: true,
     round: true,
     sector: true
 };
@@ -63,6 +64,54 @@ const findSectorOrThrow = async (sectorId) => {
     return sector;
 };
 
+const findCompetitionEntryOrThrow = async (competitionEntryId) => {
+    const entry = await prisma.competitionEntry.findUnique({
+        where: { id: competitionEntryId },
+        include: {
+            competitor: true,
+            competition: true
+        }
+    });
+
+    if (!entry) {
+        const error = new Error('Nie znaleziono zgłoszenia zawodnika do zawodów');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    return entry;
+};
+
+const validateEntryBelongsToCompetitor = (entry, competitorId) => {
+    if (entry.competitorId !== competitorId) {
+        const error = new Error(
+            'Zgłoszenie nie należy do wybranego zawodnika'
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+};
+
+const validateEntryCategoryMatchesSector = (entry, sector) => {
+    if (entry.category !== sector.category) {
+        const error = new Error(
+            'Kategoria zawodnika nie jest zgodna z kategorią sektora'
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+};
+
+const validateEntryBelongsToCompetition = (entry, competitionId) => {
+    if (entry.competitionId !== competitionId) {
+        const error = new Error(
+            'Zgłoszenie zawodnika nie należy do zawodów tej tury'
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+};
+
 const validateSectorBelongsToRound = (sector, roundId, message) => {
     if (sector.roundId !== roundId) {
         const error = new Error(message);
@@ -79,6 +128,23 @@ const validateRoundBelongsToCompetition = (round, competitionId) => {
     }
 };
 
+const validateJudgeAccessToSector = async (userId, sectorId) => {
+    const sectorJudge = await prisma.sectorJudge.findUnique({
+        where: {
+            sectorId_userId: {
+                sectorId,
+                userId
+            }
+        }
+    });
+
+    if (!sectorJudge) {
+        const error = new Error('Nie masz uprawnień do obsługi tego sektora');
+        error.statusCode = 403;
+        throw error;
+    }
+};
+
 exports.getAllStarts = async () => {
     return await prisma.start.findMany({
         include: startInclude
@@ -91,14 +157,33 @@ exports.getStartById = async (id) => {
 
 exports.createStart = async (data) => {
     await findCompetitorOrThrow(data.competitorId);
-    await findRoundOrThrow(data.roundId);
 
+    const entry = await findCompetitionEntryOrThrow(
+        data.competitionEntryId
+    );
+
+    const round = await findRoundOrThrow(data.roundId);
     const sector = await findSectorOrThrow(data.sectorId);
+
+    validateEntryBelongsToCompetitor(
+        entry,
+        data.competitorId
+    );
+
+    validateEntryBelongsToCompetition(
+        entry,
+        round.competitionId
+    );
 
     validateSectorBelongsToRound(
         sector,
         data.roundId,
         'Sektor nie należy do wybranej tury'
+    );
+
+    validateEntryCategoryMatchesSector(
+        entry,
+        sector
     );
 
     return await prisma.start.create({
@@ -117,6 +202,11 @@ exports.updateStart = async (id, data) => {
             sector,
             existingStart.roundId,
             'Sektor nie należy do tury tego startu'
+        );
+
+        validateEntryCategoryMatchesSector(
+            existingStart.competitionEntry,
+            sector
         );
     }
 
@@ -163,7 +253,36 @@ exports.getStartsByCompetitionRoundAndSector = async (
         },
         include: startInclude,
         orderBy: {
-            position: 'asc'
+            pegNumber: 'asc'
         }
+    });
+};
+
+exports.weighStart = async (id, data, user) => {
+    const start = await findStartOrThrow(id);
+
+    if (start.sector.status === 'FINISHED') {
+        const error = new Error(
+            'Sektor został zakończony. Nie można edytować wyników ważenia.'
+        );
+        error.statusCode = 409;
+        throw error;
+    }
+
+    if (user.role === 'JUDGE') {
+        await validateJudgeAccessToSector(
+            user.userId,
+            start.sectorId
+        );
+    }
+
+    return await prisma.start.update({
+        where: { id },
+        data: {
+            weight: data.weight,
+            penaltyPoints: data.penaltyPoints,
+            status: 'WEIGHED'
+        },
+        include: startInclude
     });
 };

@@ -13,12 +13,42 @@ generator client {
 }
 
 model Competition {
-  id   Int      @id @default(autoincrement())
-  name String
-  date DateTime
+  id          Int              @id @default(autoincrement())
+  name        String
+  startDate   DateTime
+  endDate     DateTime
+  venue       String
+  rank        CompetitionRank?
+  description String?
+
+  organizerId Int
+  organizer   User @relation("OrganizedCompetitions", fields: [organizerId], references: [id])
+
+  status    CompetitionStatus    @default(DRAFT)
+  setupStep CompetitionSetupStep @default(BASIC_INFO)
+
+  settings CompetitionSettings?
 
   teams  Team[]
   rounds Round[]
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  CompetitionEntry CompetitionEntry[]
+}
+
+model CompetitionSettings {
+  id            Int @id @default(autoincrement())
+  competitionId Int @unique
+
+  roundCount Int @default(1)
+
+  assignmentMode AssignmentMode @default(DRAW)
+
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Team {
@@ -32,13 +62,31 @@ model Team {
 }
 
 model Competitor {
-  id       Int                @id @default(autoincrement())
-  name     String
-  surname  String
-  category CompetitorCategory @default(SENIOR)
+  id      Int    @id @default(autoincrement())
+  name    String
+  surname String
 
-  teams  TeamMember[]
+  teams   TeamMember[]
+  entries CompetitionEntry[]
+  starts  Start[]
+}
+
+model CompetitionEntry {
+  id            Int @id @default(autoincrement())
+  competitionId Int
+  competitorId  Int
+
+  category CompetitorCategory
+
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  competitor  Competitor  @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+
   starts Start[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([competitionId, competitorId])
 }
 
 model TeamMember {
@@ -54,9 +102,12 @@ model TeamMember {
 }
 
 model Round {
-  id     Int    @id @default(autoincrement())
+  id     Int      @id @default(autoincrement())
   name   String
   number Int
+  date   DateTime
+
+  status RoundStatus @default(PLANNED)
 
   competitionId Int
   competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
@@ -65,16 +116,58 @@ model Round {
   starts  Start[]
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([competitionId, number])
 }
 
 model Sector {
   id   Int    @id @default(autoincrement())
   name String
 
+  category CompetitorCategory
+
+  startPeg Int
+  endPeg   Int
+  capacity Int
+
+  status SectorStatus @default(PLANNED)
+
   roundId Int
   round   Round @relation(fields: [roundId], references: [id], onDelete: Cascade)
 
   starts Start[]
+
+  judges       SectorJudge[]
+  judgeInvites JudgeInvite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roundId, name])
+}
+
+model SectorJudge {
+  id       Int @id @default(autoincrement())
+  sectorId Int
+  userId   Int
+
+  sector Sector @relation(fields: [sectorId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([sectorId, userId])
+}
+
+model JudgeInvite {
+  id        Int      @id @default(autoincrement())
+  sectorId  Int
+  code      String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+
+  sector Sector @relation(fields: [sectorId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 }
@@ -82,27 +175,27 @@ model Sector {
 model Start {
   id Int @id @default(autoincrement())
 
-  competitorId Int
-  roundId      Int
-  sectorId     Int
+  competitionEntryId Int
+  competitorId       Int
+  roundId            Int
+  sectorId           Int
 
-  competitor Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
-  round      Round      @relation(fields: [roundId], references: [id], onDelete: Cascade)
-  sector     Sector     @relation(fields: [sectorId], references: [id], onDelete: Cascade)
+  pegNumber Int
 
-  position Int?
-  weight   Int  @default(0)
+  weight        Int?
+  penaltyPoints Int  @default(0)
 
-  status StartStatus @default(ACTIVE)
+  status StartStatus @default(PENDING)
 
-  penaltyPoints Int    @default(0)
-  sectorPoints  Float?
-
-  subSector String?
+  competitionEntry CompetitionEntry @relation(fields: [competitionEntryId], references: [id], onDelete: Cascade)
+  competitor       Competitor       @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  round            Round            @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  sector           Sector           @relation(fields: [sectorId], references: [id], onDelete: Cascade)
 
   result Result?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([competitorId, roundId])
 }
@@ -113,13 +206,11 @@ model Result {
   startId Int   @unique
   start   Start @relation(fields: [startId], references: [id], onDelete: Cascade)
 
-  placeInSector Int?
+  placeInSector Float?
   sectorPoints  Float?
   finalPoints   Float?
 
   status ResultStatus @default(PENDING)
-
-  notes String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -131,6 +222,9 @@ model User {
   email    String   @unique
   password String
   role     UserRole @default(USER)
+
+  competitions  Competition[] @relation("OrganizedCompetitions")
+  judgedSectors SectorJudge[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -147,17 +241,62 @@ enum CompetitorCategory {
   SENIOR
   WOMAN
   U25
+  U20
+  U15
 }
 
 enum StartStatus {
-  ACTIVE
-  DNS // nie wystartował
-  DNF // mie ukończył ???czy na pewno potrzebny???
-  DSQ // dyskwalifikacja
+  PENDING
+  WEIGHED
+  DNS
+  DSQ
 }
 
 enum ResultStatus {
   PENDING
   CONFIRMED
-  DISQUALIFIED
+}
+
+enum CompetitionRank {
+  FRIENDLY
+  CLUB
+  DISTRICT
+  GPP
+}
+
+enum CompetitionStatus {
+  DRAFT
+  READY
+  IN_PROGRESS
+  FINISHED
+  CANCELLED
+}
+
+enum CompetitionSetupStep {
+  BASIC_INFO
+  SETTINGS
+  STRUCTURE
+  PARTICIPANTS
+  SUMMARY
+  COMPLETED
+}
+
+enum AssignmentMode {
+  DRAW
+  MANUAL
+}
+
+enum RoundStatus {
+  PLANNED
+  DRAWN
+  IN_PROGRESS
+  FINISHED
+}
+
+enum SectorStatus {
+  PLANNED
+  DRAWN
+  IN_PROGRESS
+  READY_FOR_RESULTS
+  FINISHED
 }

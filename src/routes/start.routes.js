@@ -106,6 +106,13 @@ router.post(
     startController.createStart
 );
 
+router.patch(
+    '/:id/weigh',
+    authMiddleware,
+    roleMiddleware('JUDGE', 'ORGANIZER', 'ADMIN'),
+    startController.weighStart
+);
+
 
 /**
  * @swagger

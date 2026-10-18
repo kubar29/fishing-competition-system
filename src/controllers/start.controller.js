@@ -2,6 +2,7 @@ const startService = require('../services/start.service');
 
 const {
     validateIdParam,
+    validateWeighStartDto,
     validateCreateStartDto,
     validateUpdateStartDto,
     mapCreateStartDto,
@@ -126,6 +127,29 @@ exports.getStartsByCompetitionRoundAndSector = async (req, res) => {
             message: error.statusCode
                 ? error.message
                 : 'Błąd pobierania startów dla sektora'
+        });
+    }
+};
+
+exports.weighStart = async (req, res) => {
+    try {
+        const id = validateIdParam(req.params.id);
+        const data = validateWeighStartDto(req.body);
+
+        const start = await startService.weighStart(
+            id,
+            data,
+            req.user
+        );
+
+        res.status(200).json(start);
+    } catch (error) {
+        console.error(error);
+
+        res.status(error.statusCode || 500).json({
+            message: error.statusCode
+                ? error.message
+                : 'Błąd podczas zapisywania ważenia'
         });
     }
 };
